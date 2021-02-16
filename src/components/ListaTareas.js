@@ -1,7 +1,7 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
+//import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Input from '@material-ui/core/Input';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import '../App.css';
@@ -9,31 +9,41 @@ import '../App.css';
 
 const ListaTareas = () => {
     const [añadiendo,setAñadiendo] = React.useState(false)
-    const [mensajes] = React.useState([{mensaje: 'Sacar la basura', estado: 0}, {mensaje: 'Estudiar', estado: 1}, {mensaje: 'Estudiar', estado: 3}]) 
+    const [mensajes, setMensajes] = React.useState([]) 
 
     const agregarTarea = () => {
-        const textoMensaje = document.getElementById('input');
-        const tareaNueva = {mensaje: textoMensaje.value, estado: 0}
-        mensajes[mensajes.length] = tareaNueva
+        const textoMensaje = document.getElementById('mensaje');
+        const horaMensaje = document.getElementById('hora');
+        if(textoMensaje.value && textoMensaje.value !== ''){
+            const tareaNueva = horaMensaje.value ? {mensaje: textoMensaje.value, estado: 0, hora: horaMensaje.value} : {mensaje: textoMensaje.value, estado: 0}
+            mensajes[mensajes.length] = tareaNueva
+        }   
+            
     }
 
-    const completarTarea = () => {
-
+    const cambiarEstado = (mensaje, nuevoValor) => {
+        var nuevosEstados = mensajes.filter(Objeto => { 
+                if(Objeto.mensaje === mensaje.mensaje){
+                    Objeto.estado = nuevoValor
+                }
+                return Objeto
+            }
+        )
+        setMensajes(nuevosEstados)
     }
 
     return (
         <div className='Glass'>
         <Grid container spacing={2}>
             <Grid item xs={12}>
-                <ButtonGroup variant="text" color="primary" aria-label="text primary button group">
-                    <Button onClick={() =>{ setAñadiendo(true)}}>Añadir</Button>
-                </ButtonGroup>
+                <Button onClick={() =>{ setAñadiendo(true)}}  style={{color: 'rgba(19, 202, 145, 1)'}} >Añadir</Button>
             </Grid>
             { 
                 añadiendo &&
                 <Grid item xs={12}>
-                    <Input id='input' style={{color: 'white'}}/>
-                    <Button color="primary" onClick={(e) =>{ agregarTarea(); setAñadiendo(false)}}>Aceptar</Button>
+                    <Input id='mensaje' placeholder='Tarea' style={{color: 'white', margin: '1vw'}}/>
+                    <Input id='hora' type='time' style={{color: 'white', margin: '1vw'}}/>
+                    <Button style={{color: 'rgba(19, 202, 145, 1)'}} onClick={(e) =>{ agregarTarea(); setAñadiendo(false)}}>Aceptar</Button>
                     <Button color="secondary" onClick={() =>{ setAñadiendo(false)}}>Cancelar</Button>
                 </Grid>
             }
@@ -43,11 +53,14 @@ const ListaTareas = () => {
                     <Grid key={idx} item xs={12} style={{marginLeft: '20vw', marginRight: '20vw', fontColor: 'black'}}>
                         <SnackbarContent message={objetos.mensaje} action={
                             <>
-                                
-                                <Button size="small" style={{color: 'rgba(19, 202, 145, 1)'}} onClick={() => objetos.estado=1}>
+                                {   
+                                    objetos.hora &&
+                                    <Input type='time' style={{color: 'white'}} value={objetos.hora} readOnly></Input>
+                                }
+                                <Button size="small" style={{color: 'rgba(19, 202, 145, 1)'}} onClick={() => {cambiarEstado(objetos,1)}}>
                                     Listo
                                 </Button>
-                                <Button size="small" style={{color: 'red'}}>
+                                <Button size="small" style={{color: 'red'}} onClick={() => {cambiarEstado(objetos,2)}}>
                                     Cancelar
                                 </Button>
                             
@@ -80,7 +93,7 @@ const ListaTareas = () => {
             </Grid>
             {
                 mensajes.map((objetos, idx) => ( 
-                    objetos.estado === 3 &&
+                    objetos.estado === 2 &&
                     
                     <Grid key={idx} item xs={12} style={{marginLeft: '20vw', marginRight: '20vw', fontColor: 'white'}}>
                         <SnackbarContent message={objetos.mensaje} 
